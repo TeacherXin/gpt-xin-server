@@ -1,11 +1,12 @@
 const express = require('express');
 const app = express();
-const userRouter = require('./routes/users');
+const chatRouter = require('./routes/chat');
 
 const port = 3002;
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-
-app.use('/user', userRouter);
+app.use('/', chatRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
