@@ -18,8 +18,13 @@ const getChat = async (message, res) => {
       ],
       model: 'gpt-3.5-turbo',
       stream: true,
+      max_tokens: 5000, // 控制生成的 token 数
     });
 
+    const eventName = 'major';
+    res.write(`event: ${eventName}\n`);
+    res.write(`data: ${JSON.stringify({id: Date.now()})}\n\n`);
+  
     for await (const part of stream) {
       const eventName = 'message';
       if (Object.keys(part.choices[0]?.delta || {}).length > 0) {
