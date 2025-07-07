@@ -9,11 +9,20 @@ const client = new OpenAi({
   baseURL: 'https://api.chatanywhere.tech/v1',
 })
 
-const getChat = async (message, res) => {
+let historyList = [];
+
+const getChat = async (message, sessionId ,res) => {
   try {
+    const majorData = {id: Date.now()};
+    if (!sessionId) {
+      sessionId = Date.now();
+      majorData.sessionId = sessionId;
+      historyList = [];
+    }
     const stream = await client.chat.completions.create({
       messages: [
         { role: 'system', content: '你是一个风趣幽默的中文助手' },
+        ...historyList,
         { role: 'user', content: message },
       ],
       model: 'gpt-3.5-turbo',
@@ -23,16 +32,25 @@ const getChat = async (message, res) => {
 
     const eventName = 'major';
     res.write(`event: ${eventName}\n`);
-    res.write(`data: ${JSON.stringify({id: Date.now()})}\n\n`);
-  
+    res.write(`data: ${JSON.stringify(majorData)}\n\n`);
+    let answer = '';
     for await (const part of stream) {
       const eventName = 'message';
       if (Object.keys(part.choices[0]?.delta || {}).length > 0) {
-        console.log(part.choices[0].delta);
         res.write(`event: ${eventName}\n`);
         res.write(`data: ${JSON.stringify(part.choices[0].delta)}\n\n`);
+        answer += part.choices[0].delta.content || '';
       }
     }
+    historyList.push({
+      role: 'user',
+      content: message,
+    });
+    historyList.push({
+      role: 'assistant',
+      content: answer,
+    });
+    console.log(historyList)
     res.end(); // 结束连接
   } catch (error) {
     console.error('Error during OpenAI API call:', error);
@@ -48,9 +66,9 @@ router.post('/chat', function(req, res) {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('X-Accel-Buffering', 'no');
   res.set('Cache-Control', 'no-cache, no-transform');
-  const { message } = req.body;
+  const { message, sessionId } = req.body;
 
-  getChat(message, res);
+  getChat(message, sessionId, res);
 });
 
 module.exports = router;
