@@ -7,6 +7,8 @@ const port = 3002;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(express.static('public'));
+
 app.use('/', chatRouter);
 app.use('/', pictureRouter);
 
