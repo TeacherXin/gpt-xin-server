@@ -12,7 +12,7 @@ const client = new OpenAi({
 router.use(cors());
 
 /* GET users listing. */
-router.post('/picture', async function(req, res) {
+router.post('/api/picture', async function(req, res) {
   const { message } = req.body;
   console.log(message);
   const imageRes = await client.images.generate({

@@ -120,7 +120,7 @@ const getHtml = async (message, sessionId, res) => {
 router.use(cors());
 
 /* GET users listing. */
-router.post('/chat', function(req, res) {
+router.post('/api/chat', function(req, res) {
   res.set('Content-Type', 'text/event-stream;charset=utf-8');
   res.set('Access-Control-Allow-Origin', '*');
   res.set('X-Accel-Buffering', 'no');
