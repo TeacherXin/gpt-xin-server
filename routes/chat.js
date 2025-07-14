@@ -101,7 +101,7 @@ const getHtml = async (message, sessionId, res) => {
     fs.writeFileSync(filePath, html, 'utf8');
     eventName = 'source';
     res.write(`event: ${eventName}\n`);
-    res.write(`data: ${JSON.stringify({html: `http://localhost:3002/html/${fileName}`})}\n\n`)
+    res.write(`data: ${JSON.stringify({html: `/html/${fileName}`})}\n\n`)
     historyList.push({
       role: 'user',
       content: message,
