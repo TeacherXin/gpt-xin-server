@@ -6,6 +6,7 @@ const cors = require('cors'); // 引入 cors
 const fs = require('fs');
 const path = require('path');
 
+const { fileStore } = require('../store/index');
 
 const client = new OpenAi({
   apiKey: process.env.OPENAI_API_FREE_KEY, // 使用环境变量加载 API 密钥
@@ -125,10 +126,25 @@ router.post('/api/chat', function(req, res) {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('X-Accel-Buffering', 'no');
   res.set('Cache-Control', 'no-cache, no-transform');
-  const { message, sessionId, type } = req.body;
+  const { message, sessionId, type, fileList } = req.body;
 
   if (type === 'html') {
     getHtml(message, sessionId, res);
+    return;
+  }
+
+  if (type === 'file') {
+    let fileContent = ': ';
+    console.log(fileStore.fileContentList)
+    fileStore.fileContentList.map((item,index) => {
+      if (fileList.includes(item.id)) {
+        fileContent += `第${index + 1}个文件内容为: ${item.content}。`;
+      }
+    })
+    console.log(fileContent)
+    getChat(message + fileContent, sessionId, res);
+    console.log(fileStore.fileContentList)
+    fileStore.clear();
     return;
   }
 
